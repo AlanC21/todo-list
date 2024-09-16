@@ -1,25 +1,36 @@
-import logo from './logo.svg';
-import './App.css';
+import React, { useState, useEffect } from 'react';
+import { BrowserRouter as Router, Route, Routes } from 'react-router-dom';
+import HomePage from './pages/HomePage';
+import TaskDetailPage from './pages/TaskDetailPage';
+import NewTaskPage from './pages/NewTaskPage';
+import EditTaskPage from './pages/EditTaskPage';
 
-function App() {
+const getTasksFromLocalStorage = () => {
+  const savedTasks = localStorage.getItem('tasks');
+  return savedTasks ? JSON.parse(savedTasks) : [];
+};
+
+const App = () => {
+  const [tasks, setTasks] = useState(getTasksFromLocalStorage());
+
+  useEffect(() => {
+    localStorage.setItem('tasks', JSON.stringify(tasks));
+  }, [tasks]);
+
+  const addTask = (newTask) => {
+    setTasks([...tasks, newTask]);
+  };
+
   return (
-    <div className="App">
-      <header className="App-header">
-        <img src={logo} className="App-logo" alt="logo" />
-        <p>
-          Edit <code>src/App.js</code> and save to reload.
-        </p>
-        <a
-          className="App-link"
-          href="https://reactjs.org"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          Learn React
-        </a>
-      </header>
-    </div>
+    <Router>
+      <Routes>
+        <Route path="/" element={<HomePage tasks={tasks} />} />
+        <Route path="/tasks/:id" element={<TaskDetailPage tasks={tasks} setTasks={setTasks} />} />
+        <Route path="/new" element={<NewTaskPage addTask={addTask} />} />
+        <Route path="/edit/:id" element={<EditTaskPage tasks={tasks} setTasks={setTasks} />} />
+      </Routes>
+    </Router>
   );
-}
+};
 
 export default App;
